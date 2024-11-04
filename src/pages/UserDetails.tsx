@@ -1,7 +1,7 @@
 // src/pages/UserDetails.tsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Loading from "../components/Loading";
 import { useAuth } from "../hooks/useAuth";
 import {
@@ -14,12 +14,14 @@ import {
 } from "@mui/material";
 import LogoutButton from "../components/LogoutButton";
 import LockModal from "../components/LockModal";
+import ResetPasswordModal from "../components/ResetPasswordModal";
 
 const UserDetails: React.FC = () => {
   const { userRole, loading } = useAuth(["Admin", "User"]);
   const { id } = useParams<{ id: string }>();
   const [user, setUser] = useState<any | null>(null);
   const [showLockModal, setShowLockModal] = useState(false); // Modal visibility
+  const [showResetPasswordModal, setShowResetPasswordModal] = useState(false); // Reset Password Modal visibility
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -69,6 +71,18 @@ const UserDetails: React.FC = () => {
     }
   };
 
+  const handleResponseError = (error: any) => {
+    if (axios.isAxiosError(error)) {
+      // Type assertion to narrow the type
+      const axiosError = error as AxiosError<{ message: string }>;
+      console.error("Axios Error:", axiosError.response);
+      alert(axiosError.response?.data.message || "An error occurred");
+    } else {
+      console.error("Unknown Error:", error);
+      alert("Unknown Error");
+    }
+  };
+
   const handleLockClick = (user: any) => {
     setShowLockModal(true); // Show the lock modal
   };
@@ -88,7 +102,7 @@ const UserDetails: React.FC = () => {
       alert(response.data.message);
       fetchUserDetails();
     } catch (error) {
-      alert("Failed to lock user.");
+      handleResponseError(error);
     }
   };
 
@@ -106,7 +120,30 @@ const UserDetails: React.FC = () => {
       alert(response.data.message);
       fetchUserDetails();
     } catch (error) {
-      alert("Failed to unlock user.");
+      handleResponseError(error);
+    }
+  };
+
+  const handleResetPasswordClick = (user: any) => {
+    setShowResetPasswordModal(true); // Show reset password modal
+  };
+
+  const handleResetPassword = async (reason: string) => {
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/users/reset-password-email`,
+        {
+          userId: user.id,
+          userEmail: user.email,
+          reason,
+        },
+        {
+          headers: { Authorization: `${token}` },
+        }
+      );
+      alert(`Password reset email sent to ${user.email}.`);
+    } catch (error) {
+      handleResponseError(error);
     }
   };
 
@@ -119,6 +156,14 @@ const UserDetails: React.FC = () => {
           open={showLockModal}
           onClose={() => setShowLockModal(false)}
           onLock={handleLockUser}
+        />
+      )}
+      {/* Reset Password Modal */}
+      {showResetPasswordModal && (
+        <ResetPasswordModal
+          open={showResetPasswordModal}
+          onClose={() => setShowResetPasswordModal(false)}
+          onResetPassword={handleResetPassword}
         />
       )}
       <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
@@ -151,7 +196,11 @@ const UserDetails: React.FC = () => {
 
         {userRole === "Admin" && (
           <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
-            <Button variant="contained" color="warning">
+            <Button
+              variant="contained"
+              color="warning"
+              onClick={() => handleResetPasswordClick(user)}
+            >
               Reset Password
             </Button>
             {user.status === "Locked" ? (

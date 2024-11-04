@@ -6,7 +6,6 @@ import UserManagement from './pages/UserManagement';
 import UserDetails from './pages/UserDetails';
 import CreateUser from './pages/CreateUser';
 import EditUser from './pages/EditUser';
-import ResetPassword from './pages/ResetPassword';
 
 const App: React.FC = () => {
   return (
@@ -17,7 +16,6 @@ const App: React.FC = () => {
         <Route path="/users/:id" element={<UserDetails />} />
         <Route path="/create-user" element={<CreateUser />} />
         <Route path="/edit-user" element={<EditUser />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </Router>
   );

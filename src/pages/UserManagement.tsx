@@ -19,12 +19,15 @@ import {
 import Loading from "../components/Loading";
 import LogoutButton from "../components/LogoutButton";
 import LockModal from "../components/LockModal";
+import ResetPasswordModal from "../components/ResetPasswordModal";
 
 const UserManagement: React.FC = () => {
   const { userRole, loading } = useAuth(["Admin", "User"]);
   const [users, setUsers] = useState<any[]>([]);
   const [userToLock, setUserToLock] = useState<any | null>(null); // Track user to lock
   const [showLockModal, setShowLockModal] = useState(false); // Modal visibility
+  const [userToReset, setUserToReset] = useState<any | null>(null); // Track user for reset password
+  const [showResetPasswordModal, setShowResetPasswordModal] = useState(false); // Reset Password Modal visibility
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -52,6 +55,18 @@ const UserManagement: React.FC = () => {
   if (loading) {
     return <Loading />;
   }
+
+  const handleResponseError = (error: any) => {
+    if (axios.isAxiosError(error)) {
+      // Type assertion to narrow the type
+      const axiosError = error as AxiosError<{ message: string }>;
+      console.error("Axios Error:", axiosError.response);
+      alert(axiosError.response?.data.message || "An error occurred");
+    } else {
+      console.error("Unknown Error:", error);
+      alert("Unknown Error");
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -111,16 +126,8 @@ const UserManagement: React.FC = () => {
       alert(response.data.message);
       fetchUsers(); // Refresh user list
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-          // Type assertion to narrow the type
-          const axiosError = error as AxiosError<{ message: string }>;
-          console.error("Axios Error:", axiosError.response);
-          alert(axiosError.response?.data.message || "An error occurred");
-        } else {
-          console.error("Unknown Error:", error);
-          alert("Unknown Error");
-        }
-      }
+      handleResponseError(error);
+    }
   };
 
   const handleUnlockUser = async (id: number) => {
@@ -137,16 +144,33 @@ const UserManagement: React.FC = () => {
       alert(response.data.message);
       fetchUsers(); // Refresh user list
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-          // Type assertion to narrow the type
-          const axiosError = error as AxiosError<{ message: string }>;
-          console.error("Axios Error:", axiosError.response);
-          alert(axiosError.response?.data.message || "An error occurred");
-        } else {
-          console.error("Unknown Error:", error);
-          alert("Unknown Error");
+      handleResponseError(error);
+    }
+  };
+
+  const handleResetPasswordClick = (user: any) => {
+    setUserToReset(user); // Set user to reset password
+    setShowResetPasswordModal(true); // Show reset password modal
+  };
+
+  const handleResetPassword = async (reason: string) => {
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/users/reset-password-email`,
+        {
+          userId: userToReset.id,
+          userEmail: userToReset.email,
+          reason,
+        },
+        {
+          headers: { Authorization: `${token}` },
         }
-      }
+      );
+      alert(`Password reset email sent to ${userToReset.email}.`);
+      //   fetchUsers(); // Refresh user list if needed
+    } catch (error) {
+      handleResponseError(error);
+    }
   };
 
   return (
@@ -158,6 +182,14 @@ const UserManagement: React.FC = () => {
           open={showLockModal}
           onClose={() => setShowLockModal(false)}
           onLock={handleLockUser}
+        />
+      )}
+      {/* Reset Password Modal */}
+      {showResetPasswordModal && (
+        <ResetPasswordModal
+          open={showResetPasswordModal}
+          onClose={() => setShowResetPasswordModal(false)}
+          onResetPassword={handleResetPassword}
         />
       )}
       <Box sx={{ marginTop: 8, marginBottom: 4 }}>
@@ -215,7 +247,7 @@ const UserManagement: React.FC = () => {
                         variant="contained"
                         color="warning"
                         size="small"
-                        onClick={() => navigate("/reset-password")}
+                        onClick={() => handleResetPasswordClick(user)}
                         sx={{ mr: 1 }}
                       >
                         Reset Password
