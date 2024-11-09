@@ -16,6 +16,19 @@ const LoginForm: React.FC = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  const handleResponseError = (error: any) => {
+    if (axios.isAxiosError(error)) {
+      // Type assertion to narrow the type
+      const axiosError = error as AxiosError<{ message: string }>;
+      console.error("Axios Error:", axiosError.response);
+      alert(axiosError.response?.data.message || "An error occurred");
+    } else {
+      console.error("Unknown Error:", error);
+      alert("Unknown Error");
+    }
+  };
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -29,15 +42,7 @@ const LoginForm: React.FC = () => {
       localStorage.setItem("token", response.data.token);
       navigate("/users"); // Redirect to User Management page after successful login
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        // Type assertion to narrow the type
-        const axiosError = error as AxiosError<{ message: string }>;
-        console.error("Axios Error:", axiosError.response);
-        alert(axiosError.response?.data.message || "An error occurred");
-      } else {
-        console.error("Unknown Error:", error);
-        alert("Unknown Error");
-      }
+      handleResponseError(error);
     }
   };
 

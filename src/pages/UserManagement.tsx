@@ -158,9 +158,9 @@ const UserManagement: React.FC = () => {
       await axios.post(
         `${process.env.REACT_APP_API_URL}/users/reset-password-email`,
         {
-          userId: userToReset.id,
-          userEmail: userToReset.email,
-          reason,
+          id: userToReset.id,
+          email: userToReset.email,
+          reset_reason: reason,
         },
         {
           headers: { Authorization: `${token}` },

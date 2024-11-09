@@ -21,8 +21,8 @@ export const useAuth = (allowedRoles: string[]) => {
             headers: { Authorization: `${token}` },
           }
         );
-        setUserRole(response.data.userRole);
-        if (!allowedRoles.includes(response.data.userRole || "")) {
+        setUserRole(response.data.curUserRole);
+        if (!allowedRoles.includes(response.data.curUserRole || "")) {
           navigate("/"); // Redirect non-allowed users to the login page
           alert(`Access Denied`);
         }
