@@ -82,14 +82,14 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (uuid: number) => {
     try {
       await axios.delete(`${process.env.REACT_APP_API_URL}/users/delete`, {
         headers: { Authorization: `${token}` },
-        data: { id },
+        data: { uuid },
       });
       alert("User successfully deleted.");
-      setUsers(users.filter((user) => user.id !== id));
+      setUsers(users.filter((user) => user.uuid !== uuid));
     } catch (error) {
       alert("Failed to delete user.");
     }
@@ -97,7 +97,7 @@ const UserManagement: React.FC = () => {
 
   const handleEdit = (user: any) => {
     const userToStore = {
-      id: user.id,
+      uuid: user.uuid,
       name: user.name,
       email: user.email,
       role: user.role,
@@ -116,7 +116,7 @@ const UserManagement: React.FC = () => {
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/users/lock`,
         {
-          id: userToLock.id,
+          uuid: userToLock.uuid,
           lock_reason: reason,
         },
         {
@@ -130,12 +130,12 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const handleUnlockUser = async (id: number) => {
+  const handleUnlockUser = async (uuid: number) => {
     try {
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/users/unlock`,
         {
-          id,
+          uuid,
         },
         {
           headers: { Authorization: `${token}` },
@@ -158,7 +158,7 @@ const UserManagement: React.FC = () => {
       await axios.post(
         `${process.env.REACT_APP_API_URL}/users/reset-password-email`,
         {
-          id: userToReset.id,
+          uuid: userToReset.uuid,
           email: userToReset.email,
           reset_reason: reason,
         },
@@ -214,7 +214,7 @@ const UserManagement: React.FC = () => {
             </TableHead>
             <TableBody>
               {users.map((user) => (
-                <TableRow key={user.id}>
+                <TableRow key={user.uuid}>
                   <TableCell>
                     <Typography
                       variant="body1"
@@ -224,7 +224,7 @@ const UserManagement: React.FC = () => {
                         cursor: "pointer",
                         textDecoration: "underline",
                       }}
-                      onClick={() => navigate(`/users/${user.id}`)}
+                      onClick={() => navigate(`/users/${user.uuid}`)}
                     >
                       {user.name}
                     </Typography>
@@ -257,7 +257,7 @@ const UserManagement: React.FC = () => {
                           variant="contained"
                           color="secondary"
                           size="small"
-                          onClick={() => handleUnlockUser(user.id)}
+                          onClick={() => handleUnlockUser(user.uuid)}
                           sx={{ mr: 1 }}
                         >
                           Unlock
@@ -277,7 +277,7 @@ const UserManagement: React.FC = () => {
                         variant="contained"
                         color="error"
                         size="small"
-                        onClick={() => handleDelete(user.id)}
+                        onClick={() => handleDelete(user.uuid)}
                       >
                         Delete
                       </Button>

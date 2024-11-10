@@ -14,7 +14,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/users" element={<UserManagement />} />
-        <Route path="/users/:id" element={<UserDetails />} />
+        <Route path="/users/:uuid" element={<UserDetails />} />
         <Route path="/create-user" element={<CreateUser />} />
         <Route path="/edit-user" element={<EditUser />} />
         <Route path="/reset-password" element={<ResetPassword />} />

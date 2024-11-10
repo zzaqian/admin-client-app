@@ -18,7 +18,7 @@ import ResetPasswordModal from "../components/ResetPasswordModal";
 
 const UserDetails: React.FC = () => {
   const { userRole, loading } = useAuth(["Admin", "User"]);
-  const { id } = useParams<{ id: string }>();
+  const { uuid } = useParams<{ uuid: string }>();
   const [user, setUser] = useState<any | null>(null);
   const [showLockModal, setShowLockModal] = useState(false); // Modal visibility
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false); // Reset Password Modal visibility
@@ -29,7 +29,7 @@ const UserDetails: React.FC = () => {
     const fetchUserDetails = async (loading: boolean) => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/users/${id}`,
+          `${process.env.REACT_APP_API_URL}/users/${uuid}`,
           {
             headers: { Authorization: `${token}` },
           }
@@ -46,7 +46,7 @@ const UserDetails: React.FC = () => {
     if (!loading) {
       fetchUserDetails(loading);
     }
-  }, [id, token, navigate, loading]);
+  }, [uuid, token, navigate, loading]);
 
   if (loading) {
     return <Loading />;
@@ -59,7 +59,7 @@ const UserDetails: React.FC = () => {
   const fetchUserDetails = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/users/${id}`,
+        `${process.env.REACT_APP_API_URL}/users/${uuid}`,
         {
           headers: { Authorization: `${token}` },
         }
@@ -92,7 +92,7 @@ const UserDetails: React.FC = () => {
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/users/lock`,
         {
-          id: user.id,
+          uuid: user.uuid,
           lock_reason: reason,
         },
         {
@@ -106,12 +106,12 @@ const UserDetails: React.FC = () => {
     }
   };
 
-  const handleUnlockUser = async (id: number) => {
+  const handleUnlockUser = async (uuid: number) => {
     try {
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/users/unlock`,
         {
-          id,
+          uuid,
         },
         {
           headers: { Authorization: `${token}` },
@@ -133,9 +133,9 @@ const UserDetails: React.FC = () => {
       await axios.post(
         `${process.env.REACT_APP_API_URL}/users/reset-password-email`,
         {
-          userId: user.id,
-          userEmail: user.email,
-          reason,
+          uuid: user.uuid,
+          email: user.email,
+          reset_reason: reason,
         },
         {
           headers: { Authorization: `${token}` },
@@ -207,7 +207,7 @@ const UserDetails: React.FC = () => {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() => handleUnlockUser(user.id)}
+                onClick={() => handleUnlockUser(user.uuid)}
               >
                 Unlock
               </Button>

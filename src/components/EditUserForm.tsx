@@ -31,7 +31,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userToEdit }) => {
       await axios.put(
         `${process.env.REACT_APP_API_URL}/users/update`,
         {
-          id: userToEdit.id,
+          uuid: userToEdit.uuid,
           name,
           email,
           role,
