@@ -18,14 +18,14 @@ import {
 } from "@mui/material";
 import Loading from "../components/Loading";
 import LogoutButton from "../components/LogoutButton";
-import LockModal from "../components/LockModal";
+import LockUserModal from "../components/LockUserModal";
 import ResetPasswordModal from "../components/ResetPasswordModal";
 
 const UserManagement: React.FC = () => {
   const { userRole, loading } = useAuth(["Admin", "User"]);
   const [users, setUsers] = useState<any[]>([]);
   const [userToLock, setUserToLock] = useState<any | null>(null); // Track user to lock
-  const [showLockModal, setShowLockModal] = useState(false); // Modal visibility
+  const [showLockUserModal, setShowLockUserModal] = useState(false); // Modal visibility
   const [userToReset, setUserToReset] = useState<any | null>(null); // Track user for reset password
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false); // Reset Password Modal visibility
   const token = localStorage.getItem("token");
@@ -108,7 +108,7 @@ const UserManagement: React.FC = () => {
 
   const handleLockClick = (user: any) => {
     setUserToLock(user); // Set the user to be locked
-    setShowLockModal(true); // Show the lock modal
+    setShowLockUserModal(true); // Show the lock modal
   };
 
   const handleLockUser = async (reason: string) => {
@@ -177,10 +177,10 @@ const UserManagement: React.FC = () => {
     <Container maxWidth="lg">
       <LogoutButton />
       {/* Lock Modal for locking a user */}
-      {showLockModal && (
-        <LockModal
-          open={showLockModal}
-          onClose={() => setShowLockModal(false)}
+      {showLockUserModal && (
+        <LockUserModal
+          open={showLockUserModal}
+          onClose={() => setShowLockUserModal(false)}
           onLock={handleLockUser}
         />
       )}
@@ -278,6 +278,7 @@ const UserManagement: React.FC = () => {
                         color="error"
                         size="small"
                         onClick={() => handleDelete(user.uuid)}
+                        sx={{ mr: 1 }}
                       >
                         Delete
                       </Button>

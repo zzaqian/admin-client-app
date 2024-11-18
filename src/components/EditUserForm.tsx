@@ -1,6 +1,6 @@
 // src/components/EditUserForm.tsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, MenuItem, TextField, Typography } from "@mui/material";
 
@@ -24,6 +24,18 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userToEdit }) => {
     }
   }, [userToEdit]);
 
+  const handleResponseError = (error: any) => {
+    if (axios.isAxiosError(error)) {
+      // Type assertion to narrow the type
+      const axiosError = error as AxiosError<{ message: string }>;
+      console.error("Axios Error:", axiosError.response);
+      alert(axiosError.response?.data.message || "Failed to save user");
+    } else {
+      console.error("Unknown Error:", error);
+      alert("Unknown Error");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -44,7 +56,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ userToEdit }) => {
       localStorage.removeItem("userToEdit");
       navigate("/users");
     } catch (error) {
-      alert("Failed to save user.");
+      handleResponseError(error);
     }
   };
 

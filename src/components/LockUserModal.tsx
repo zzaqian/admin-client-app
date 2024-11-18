@@ -1,4 +1,4 @@
-// src/components/LockModal.tsx
+// src/components/LockUserModal.tsx
 import React, { useState } from "react";
 import {
   Dialog,
@@ -10,13 +10,13 @@ import {
   Button,
 } from "@mui/material";
 
-interface LockModalProps {
+interface LockUserModalProps {
   open: boolean;
   onClose: () => void;
   onLock: (reason: string) => void;
 }
 
-const LockModal: React.FC<LockModalProps> = ({ open, onClose, onLock }) => {
+const LockUserModal: React.FC<LockUserModalProps> = ({ open, onClose, onLock }) => {
   const [reason, setReason] = useState("");
 
   const handleSubmit = () => {
@@ -56,4 +56,4 @@ const LockModal: React.FC<LockModalProps> = ({ open, onClose, onLock }) => {
   );
 };
 
-export default LockModal;
+export default LockUserModal;

@@ -13,14 +13,14 @@ import {
   Divider,
 } from "@mui/material";
 import LogoutButton from "../components/LogoutButton";
-import LockModal from "../components/LockModal";
+import LockUserModal from "../components/LockUserModal";
 import ResetPasswordModal from "../components/ResetPasswordModal";
 
 const UserDetails: React.FC = () => {
   const { userRole, loading } = useAuth(["Admin", "User"]);
   const { uuid } = useParams<{ uuid: string }>();
   const [user, setUser] = useState<any | null>(null);
-  const [showLockModal, setShowLockModal] = useState(false); // Modal visibility
+  const [showLockUserModal, setShowLockUserModal] = useState(false); // Modal visibility
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false); // Reset Password Modal visibility
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -84,7 +84,7 @@ const UserDetails: React.FC = () => {
   };
 
   const handleLockClick = (user: any) => {
-    setShowLockModal(true); // Show the lock modal
+    setShowLockUserModal(true); // Show the lock modal
   };
 
   const handleLockUser = async (reason: string) => {
@@ -151,10 +151,10 @@ const UserDetails: React.FC = () => {
     <Container maxWidth="sm">
       <LogoutButton />
       {/* Lock Modal for locking a user */}
-      {showLockModal && (
-        <LockModal
-          open={showLockModal}
-          onClose={() => setShowLockModal(false)}
+      {showLockUserModal && (
+        <LockUserModal
+          open={showLockUserModal}
+          onClose={() => setShowLockUserModal(false)}
           onLock={handleLockUser}
         />
       )}
