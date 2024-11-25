@@ -20,6 +20,7 @@ import Loading from "../components/Loading";
 import LogoutButton from "../components/LogoutButton";
 import CancelSubscriptionModal from "../components/CancelSubscriptionModal";
 import UpdatePlanModal from "../components/UpdatePlanModal";
+import RefundSubscriptionModal from "../components/RefundSubscriptionModal";
 
 const SubscriptionManagement: React.FC = () => {
   const { userRole, loading } = useAuth(["Admin", "User"]);
@@ -28,6 +29,8 @@ const SubscriptionManagement: React.FC = () => {
   const [showCancelSubModal, setshowCancelSubModal] = useState(false); // Modal visibility
   const [subToUpdatePlan, setSubToUpdatePlan] = useState<any | null>(null); // Track subscription to update plan
   const [showUpdatePlanModal, setshowUpdatePlanModal] = useState(false); // Modal visibility
+  const [subToRefund, setSubToRefund] = useState<any | null>(null); // Track subscription to refund
+  const [showRefundSubModal, setshowRefundSubModal] = useState(false); // Modal visibility
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -130,6 +133,30 @@ const SubscriptionManagement: React.FC = () => {
     }
   };
 
+  const handleRefundClick = (sub: any) => {
+    setSubToRefund(sub); // Set the sub to be refunded
+    setshowRefundSubModal(true); // Show the refund modal
+  };
+
+  const handleRefund = async (amount: string) => {
+    try {
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/subscriptions/refund`,
+        {
+          uuid: subToRefund.uuid,
+          refund_amount: amount,
+        },
+        {
+          headers: { Authorization: `${token}` },
+        }
+      );
+      alert(response.data.message);
+      fetchSubs(); // Refresh subscription list
+    } catch (error) {
+      handleResponseError(error);
+    }
+  };
+
   return (
     <Container maxWidth="lg">
       <LogoutButton />
@@ -148,6 +175,14 @@ const SubscriptionManagement: React.FC = () => {
           oldPlan={subToUpdatePlan.plan}
           onClose={() => setshowUpdatePlanModal(false)}
           onUpdatePlan={handleUpdatePlan}
+        />
+      )}
+      {/* Refund Sub Modal for refunding a subscription */}
+      {showRefundSubModal && (
+        <RefundSubscriptionModal
+          open={showRefundSubModal}
+          onClose={() => setshowRefundSubModal(false)}
+          onRefund={handleRefund}
         />
       )}
       <Box sx={{ marginTop: 8, marginBottom: 4 }}>
@@ -207,6 +242,15 @@ const SubscriptionManagement: React.FC = () => {
                         sx={{ mr: 1 }}
                       >
                         Cancel
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="warning"
+                        size="small"
+                        onClick={() => handleRefundClick(sub)}
+                        sx={{ mr: 1 }}
+                      >
+                        Refund
                       </Button>
                     </TableCell>
                   )}

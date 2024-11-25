@@ -15,6 +15,7 @@ import {
 import LogoutButton from "../components/LogoutButton";
 import CancelSubscriptionModal from "../components/CancelSubscriptionModal";
 import UpdatePlanModal from "../components/UpdatePlanModal";
+import RefundSubscriptionModal from "../components/RefundSubscriptionModal";
 
 const SubscriptionDetails: React.FC = () => {
   const { userRole, loading } = useAuth(["Admin", "User"]);
@@ -22,6 +23,7 @@ const SubscriptionDetails: React.FC = () => {
   const [sub, setSub] = useState<any | null>(null);
   const [showCancelSubModal, setshowCancelSubModal] = useState(false); // Modal visibility
   const [showUpdatePlanModal, setshowUpdatePlanModal] = useState(false); // Modal visibility
+  const [showRefundSubModal, setshowRefundSubModal] = useState(false); // Modal visibility
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -129,6 +131,29 @@ const SubscriptionDetails: React.FC = () => {
     }
   };
 
+  const handleRefundClick = () => {
+    setshowRefundSubModal(true); // Show the lock modal
+  };
+
+  const handleRefund = async (amount: string) => {
+    try {
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/subscriptions/refund`,
+        {
+          uuid: uuid,
+          refund_amount: amount,
+        },
+        {
+          headers: { Authorization: `${token}` },
+        }
+      );
+      alert(response.data.message);
+      fetchSubscriptionDetails();
+    } catch (error) {
+      handleResponseError(error);
+    }
+  };
+
   const parseDatetime = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
@@ -152,6 +177,14 @@ const SubscriptionDetails: React.FC = () => {
           oldPlan={sub.plan}
           onClose={() => setshowUpdatePlanModal(false)}
           onUpdatePlan={handleUpdatePlan}
+        />
+      )}
+      {/* Refund Sub Modal for refunding a subscription */}
+      {showRefundSubModal && (
+        <RefundSubscriptionModal
+          open={showRefundSubModal}
+          onClose={() => setshowRefundSubModal(false)}
+          onRefund={handleRefund}
         />
       )}
       <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
@@ -210,6 +243,15 @@ const SubscriptionDetails: React.FC = () => {
               sx={{ mr: 1 }}
             >
               Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="warning"
+              size="small"
+              onClick={() => handleRefundClick()}
+              sx={{ mr: 1 }}
+            >
+              Refund
             </Button>
           </Box>
         )}
